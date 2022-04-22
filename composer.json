@@ -28,8 +28,8 @@
     }
   ],
   "require": {
-    "yivic/yivic-libs-project": "dev-master",
-    "yivic/yivic-admin-theme": "dev-master",
+    "yivic/yivic-libs-project": "dev-main",
+    "yivic/yivic-admin-theme": "dev-main",
     "composer/installers": "^1.11",
     "php": ">=7.2.0"
   },
