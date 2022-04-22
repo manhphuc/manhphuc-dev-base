@@ -15,7 +15,7 @@
   "repositories": [
     {
       "type": "git",
-      "url": "https://github.com/manhphuc/yivic-libs-project/"
+      "url": "https://github.com/manhphuc/yivic-libs-project"
     },
     {
       "type": "git",
@@ -23,6 +23,8 @@
     }
   ],
   "require": {
+    "yivic/yivic-libs-project": "dev-master",
+    "yivic/yivic-admin-theme": "dev-master",
     "composer/installers": "^1.11",
     "php": ">=7.2.0"
   },
