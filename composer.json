@@ -22,6 +22,10 @@
       "url": "https://github.com/manhphuc/yivic-admin-theme"
     }
   ],
+  "require": {
+    "composer/installers": "^1.11",
+    "php": ">=7.2.0"
+  },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "extra": {
@@ -29,9 +33,6 @@
       "libs/": ["type:project-libs"],
       "public/template/admin/{$name}/": ["type:project-theme"]
     }
-  },
-  "require": {
-    "php": ">=7.2.0"
   },
   "autoload": {
     "psr-4": {
