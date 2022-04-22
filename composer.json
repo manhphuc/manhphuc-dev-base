@@ -15,6 +15,10 @@
   "repositories": [
     {
       "type": "git",
+      "url": "https://github.com/manhphuc/yivic-libs-project/"
+    },
+    {
+      "type": "git",
       "url": "https://github.com/manhphuc/yivic-admin-theme"
     }
   ],
@@ -22,6 +26,7 @@
   "prefer-stable": true,
   "extra": {
     "installer-paths": {
+      "libs/": ["type:project-libs"],
       "public/template/admin/{$name}/": ["type:project-theme"]
     }
   },
