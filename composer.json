@@ -12,6 +12,9 @@
       "email": "contact@yivic.com"
     }
   ],
+  "config": {
+    "preferred-install": "dist"
+  },
   "repositories": [
     {
       "type": "git",
