@@ -38,6 +38,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "extra": {
+    "installer-types": ["project-lib", "project-theme"],
     "installer-paths": {
       "libs/": ["type:project-libs"],
       "public/template/admin/{$name}/": ["type:project-theme"]
