@@ -23,14 +23,13 @@
     },
     {
       "type": "composer",
-      "url": "https://wpackagist.org",
-      "only": ["wpackagist-plugin/*", "wpackagist-theme/*"]
+      "url": "https://wpackagist.org"
     }
   ],
   "require": {
     "yivic/yivic-libs-project": "dev-main",
     "yivic/yivic-admin-theme": "dev-main",
-    "composer/installers": "^1.11",
+    "composer/installers": "^1.4",
     "php": ">=7.2.0"
   },
   "minimum-stability": "dev",
