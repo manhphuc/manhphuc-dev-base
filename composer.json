@@ -1,0 +1,23 @@
+{
+  "name": "yivic/manhphuc-dev-base",
+  "description": "Building CMS follows the model of MVC for Development of Yivic",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Phuc Nguyen",
+      "email": "manhphucofficial@yahoo.com"
+    },
+    {
+      "name": "Yivic",
+      "email": "contact@yivic.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "yivic\\ManhPhucDevBase\\": ""
+    }
+  }
+}

@@ -1,0 +1,33 @@
+# Application
+.env
+
+# Folders to ignore
+/vendor
+/temp
+/tmp
+/.tmp
+node_modules
+
+# Numerous always-ignore extensions
+*.diff
+*.err
+*.orig
+*.log
+*.rej
+*.swo
+*.swp
+*.vi
+*.7z
+*.dmg
+*.gz
+*.iso
+*.rar
+*.tar
+*~
+
+# OS or Editor folders
+.DS_Store
+__MACOSX/
+._*
+Desktop.ini
+.idea
