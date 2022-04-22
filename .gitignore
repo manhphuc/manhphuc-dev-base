@@ -1,4 +1,11 @@
 # Application
+public/template/admin/*/
+public/template/default/*/
+public/files/*/
+!public/files/.gitkeep
+libs/*/
+
+# Dotenv
 .env
 
 # Folders to ignore

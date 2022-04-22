@@ -11,7 +11,7 @@ defined( 'APPLICATION_PATH' ) || define( 'APPLICATION_PATH', ROOT_PATH . DS . 'a
 defined( 'MODULE_PATH' ) || define( 'MODULE_PATH', APPLICATION_PATH . 'module' . DS );
 defined( 'BLOCK_PATH' ) || define( 'BLOCK_PATH', APPLICATION_PATH . 'blocks' . DS );
 defined( 'TEMPLATE_PATH' ) || define( 'TEMPLATE_PATH', PUBLIC_PATH . 'template' . DS );
-defined( 'ROOT_URL' ) || define( 'ROOT_URL', DS . 'master' . DS );
+defined( 'ROOT_URL' ) || define( 'ROOT_URL', DS . 'manhphuc-dev-base' . DS );
 defined( 'APPLICATION_URL' ) || define( 'APPLICATION_URL', ROOT_URL . 'application' . DS );
 defined( 'PUBLIC_URL' ) || define( 'PUBLIC_URL', ROOT_URL . 'public' . DS );
 defined( 'UPLOAD_URL' ) || define( 'UPLOAD_URL', PUBLIC_URL . 'files' . DS );
@@ -22,6 +22,7 @@ defined( 'DEFAULT_CONTROLLER' ) || define( 'DEFAULT_CONTROLLER', 'index' );
 defined( 'DEFAULT_ACTION' ) || define( 'DEFAULT_ACTION', 'index' );
 
 // ====================== DATABASE ===========================
+defined( 'DATABASE_TYPE' ) || define( 'DATABASE_TYPE', 'mysql' ); //sqlite
 defined( 'DB_HOST' ) || define( 'DB_HOST', 'localhost' );
 defined( 'DB_USER' ) || define( 'DB_USER', 'yivic' );
 defined( 'DB_PASS' ) || define( 'DB_PASS', 'passWord' );
