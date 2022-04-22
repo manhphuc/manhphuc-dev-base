@@ -20,6 +20,11 @@
     {
       "type": "git",
       "url": "https://github.com/manhphuc/yivic-admin-theme"
+    },
+    {
+      "type": "composer",
+      "url": "https://wpackagist.org",
+      "only": ["wpackagist-plugin/*", "wpackagist-theme/*"]
     }
   ],
   "require": {
