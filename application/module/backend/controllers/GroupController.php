@@ -33,8 +33,11 @@ class GroupController extends Controller {
 
         $this->setPagination( $configPagination );
         $this->_view->pagination = new Pagination( $totalItems, $this->_pagination );
-
+        $this->_arrParam['filter_status']   = ( !empty( $_GET['filter_status'] ) ) ? $_GET['filter_status'] : 'all';
+        $this->_arrParam['filter_search']   = ( !empty( $_GET['search'] ) ) ? $_GET['search'] : '';
         $this->_view->Items     = $this->_model->listItem( $this->_arrParam, null );
+        $this->_view->countItem = $this->_model->totalFilterItem();
+
         $this->_view->render( 'group/index' );
 
     }
@@ -117,12 +120,22 @@ class GroupController extends Controller {
     }
 
 
-    //
+    /*
+     * ACTION: Change Ajax (*)
+     * */
     public function changeAjaxAction(){
-        $_arrParam['value'] = $_GET['valueOrdering'];
-        $_arrParam['id']	= $_GET['id'];
-        $result = $this->_model->changeAjax( $_arrParam, $_GET['typeOrdering'] );
+        $this->_arrParam['value']   = $_GET['valueOrdering'];
+        $this->_arrParam['id']	    = $_GET['id'];
+        $result = $this->_model->changeStatus( $this->_arrParam, [ 'task' => 'changeOrderingField' ] );
         echo json_encode($result);
+    }
+
+    /*
+     * ACTION: Bulk (*)
+     * */
+    public function bulkAction(){
+        $result = $this->_model->changeBulk( $this->_arrParam, null );
+        URL::redirect( 'backend', 'group', 'index' );
     }
 
 }

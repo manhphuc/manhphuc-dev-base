@@ -1,7 +1,10 @@
 <?php
 $controller     = @$this->arrParam['controller'];
-$columnPost     = ( !empty( $_GET['field'] ) )      ? $_GET['field']   : 'id';
-$orderPost 		= ( !empty( $_GET['type'] ) )       ? $_GET['type']    : 'desc';
+$module         = @$this->arrParam['module'];
+$action         = @$this->arrParam['action'];
+$paramsStatus   = !empty( @$this->arrParam['filter_status'] ) ? @$this->arrParam['filter_status'] : 'all';
+$columnPost     = ( !empty( $_GET['field'] ) ) ? $_GET['field']   : 'id';
+$orderPost 		= ( !empty( $_GET['type'] ) ) ? $_GET['type']    : 'desc';
 $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend', $controller, 'index' ) );
 ?>
 <div class="content-wrapper">
@@ -14,13 +17,13 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <form class="content" action="#" method="post" name="adminForm" id="adminForm">
+                    <?php $bulkAction     = URL::createLink( $this->arrParam['module'], $this->arrParam['controller'], 'bulk' ); ?>
+                    <form class="content" action="<?php echo $bulkAction; ?>" method="post" name="adminForm" id="adminForm">
                         <div class="yivic-allBlockForm" >
                             <!-- Search & Filter -->
                             <div class="card card-default yivicCard">
                                 <div class="card-header">
                                     <h3 class="card-title">Search & Filter</h3>
-
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                             <i class="fas fa-minus"></i>
@@ -31,22 +34,62 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                     <div class="container-fluid">
                                         <div class="row justify-content-between align-items-center">
                                             <div class="area-filter-status mb-2">
-                                                <a href="#" class="btn btn-info">All <span class="badge badge-pill badge-light">8</span></a>
-                                                <a href="#" class="btn btn-secondary">Active <span class="badge badge-pill badge-light">3</span></a>
-                                                <a href="#" class="btn btn-secondary">Inactive <span class="badge badge-pill badge-light">5</span></a>
+                                                <?php $linkInactive	= URL::createLink( $module, $controller, $action, ['filter_status' => 'inactive'] ); ?>
+                                                <?php $linkActive	= URL::createLink( $module, $controller, $action, ['filter_status' => 'active'] ); ?>
+                                                <?php $linkAll		= URL::createLink( $module, $controller, $action, ['filter_status' => 'all'] ); ?>
+                                                <?php $arrFilterStatus= [
+                                                    'all' => [
+                                                        'name'  => 'All',
+                                                        'class' => 'btn-default',
+                                                        'link'  => $linkAll,
+                                                        'total' => $this->countItem['totalAll']
+                                                    ],
+                                                    'active'  => [
+                                                        'name'  => 'Active',
+                                                        'class' => 'btn-default',
+                                                        'link'  => $linkActive,
+                                                        'total' => $this->countItem['totalActive']
+                                                    ],
+                                                    'inactive' => [
+                                                        'name'  => 'InActive',
+                                                        'class' => 'btn-default',
+                                                        'link'  => $linkInactive,
+                                                        'total' => $this->countItem['totalInactive']
+                                                    ]
+                                                ]; ?>
+                                                <?php $arrFilterStatus[$paramsStatus]['class'] = 'btn-success'; ?>
+                                                <?php echo Helper::showFilterStatus( $arrFilterStatus ); ?>
                                             </div>
                                             <div class="area-search mb-2">
                                                 <form action="" method="GET">
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control">
+                                                        <?php $paramsSearch = !empty( $this->arrParam['search'] ) ? $this->arrParam['search'] : ''; ?>
+                                                        <input type="text" class="form-control" name="search" placeholder="Search for" aria-label="search" value="<?php echo $paramsSearch; ?>">
                                                         <span class="input-group-append">
-                                                    <button type="submit" class="btn btn-info">Search</button>
-                                                    <a href="#" class="btn btn-danger">Clear</a>
-                                                </span>
+                                                            <button type="button" name="clear" class="btn btn-default">Clear</button>
+                                                            <button type="button" name="search" class="btn btn-success">Search</button>
+                                                        </span>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
+                                        <?php
+                                        // Select box status
+                                        $arrSelectBoxStt = [
+                                            'default'   => 'Select status',
+                                            'inactive'  => 'Unpublish',
+                                            'active'    => 'Publish'
+                                        ];
+                                        $selectBoxStt       = Helper::cmsSelectBox( 'filter_state', 'form-select', $arrSelectBoxStt, $this->arrParam['filter_state'] ?? '' );
+
+                                        // Select box Group ACP
+                                        $arrSelectGrACP     = [
+                                            'default'   => 'Select Group ACP',
+                                            1           => 'Yes',
+                                            0           => 'No'
+                                        ];
+                                        $selectGrACP        = Helper::cmsSelectBox( 'filter_group_acp', 'form-select', $arrSelectGrACP, $this->arrParam['filter_group_acp'] ?? '' );
+                                        ?>
                                         <div class="row justify-content-start align-items-end yivic-selectBox-row">
                                             <div class="form-group">
                                                 <select class="form-control">
@@ -68,13 +111,13 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                 </div>
                                 <!-- /.card-body -->
                             </div>
+
                             <!-- List -->
                             <div class="card card-default yivicCard">
                                 <div class="card-header">
                                     <h3 class="card-title">List</h3>
-
                                     <div class="card-tools">
-                                        <a href="#" class="btn btn-tool" data-card-widget="refresh">
+                                        <a href="#" class="btn btn-tool" data-card-widget="refresh" onclick="javascript:refreshAll()">
                                             <i class="fas fa-sync-alt"></i>
                                         </a>
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -87,15 +130,19 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                         <div class="row align-items-center justify-content-between mb-2">
                                             <div>
                                                 <div class="input-group">
-                                                    <select class="form-control custom-select">
-                                                        <option>Bulk Action</option>
-                                                        <option>Delete</option>
-                                                        <option>Active</option>
-                                                        <option>Inactive</option>
+
+                                                    <select class="form-control custom-select" name="action_choose">
+                                                        <option value="default">Bulk Action</option>
+                                                        <option value="active">Active</option>
+                                                        <option value="inactive">InActive</option>
+                                                        <option value="ordering">Change Ordering</option>
+                                                        <option value="delete">Delete</option>
                                                     </select>
+
                                                     <span class="input-group-append">
-                                                <button type="button" class="btn btn-info">Apply</button>
-                                            </span>
+                                                        <button type="submit" name="apply" id="apply" class="btn btn-info">Apply</button>
+                                                    </span>
+
                                                 </div>
                                             </div>
                                             <div>
@@ -104,7 +151,6 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                         </div>
                                     </div>
                                     <div class="table-responsive">
-
                                         <div id="yivicTableAjax_wrapper" class="dataTables_wrapper">
 
                                             <table id="yivicTableAjax-ordering" class="table table-bordered table-striped" >
@@ -197,7 +243,6 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
 
                                 </div>
                             </div>
-
                             <div>
                                 <input type="hidden" name="filter_column" value="name" />
                                 <input type="hidden" name="filter_page" value="1" />

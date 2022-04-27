@@ -19,21 +19,29 @@ class GroupModel extends Model{
 
         // Filter: keyword
         $flagWhere      = false;
-        if( !empty( $arrParam['filter_search'] ) ) {
-            $keyword    = '"%' . $arrParam['filter_search'] . '%"';
-            $query[]    = "WHERE  `name` LIKE $keyword";
-            $flagWhere  = true;
+        if( !empty( $arrParam['filter_search'] ) && $arrParam['filter_search'] != '' ) {
+            if( $flagWhere == true ){
+                $keyword    = '"%' . $arrParam['filter_search'] . '%"';
+                $query[]    = "AND  `name` LIKE $keyword";
+            } else {
+                $keyword    = '"%' . $arrParam['filter_search'] . '%"';
+                $query[]    = "WHERE  `name` LIKE $keyword";
+                $flagWhere  = true;
+            }
         }
 
         // Filter: Status
-        if( isset( $arrParam['filter_state'] ) && $arrParam['filter_state'] != 'default' ) {
+        if( isset( $arrParam['filter_status'] ) && $arrParam['filter_status'] != 'all' ) {
             if( $flagWhere == true ){
-                $query[]	= "AND `status` = '" . $arrParam['filter_state']. "'";
+                $filterStatus 	= "AND `status` =  '".$arrParam['filter_status'] . "'";
+                $query[] 	    = $filterStatus ;
             } else {
-                $query[]	= "WHERE `status` = '" . $arrParam['filter_state'] . "'";
-                $flagWhere	= true;
+                $filterStatus 	= "WHERE `status` =  '".$arrParam['filter_status'] . "'";
+                $query[] 	    = $filterStatus ;
+                $flagWhere	    = true;
             }
         }
+
         // Filter: Gr ACP
         if( isset( $arrParam['filter_group_acp'] ) && $arrParam['filter_group_acp'] != 'default' ) {
             if( $flagWhere == true ){
@@ -55,21 +63,29 @@ class GroupModel extends Model{
 
         // Filter: keyword
         $flagWhere      = false;
-        if( !empty( $arrParam['filter_search'] ) ) {
-            $keyword    = '"%' . $arrParam['filter_search'] . '%"';
-            $query[]    = "WHERE  `name` LIKE $keyword";
-            $flagWhere  = true;
+        if( !empty( $arrParam['filter_search'] ) && $arrParam['filter_search'] != '' ) {
+            if( $flagWhere == true ){
+                $keyword    = '"%' . $arrParam['filter_search'] . '%"';
+                $query[]    = "AND  `name` LIKE $keyword";
+            } else {
+                $keyword    = '"%' . $arrParam['filter_search'] . '%"';
+                $query[]    = "WHERE  `name` LIKE $keyword";
+                $flagWhere  = true;
+            }
         }
 
         // Filter: Status
-        if( isset( $arrParam['filter_state'] ) && $arrParam['filter_state'] != 'default' ){
+        if( isset( $arrParam['filter_status'] ) && $arrParam['filter_status'] != 'all' ) {
             if( $flagWhere == true ){
-                $query[]	= "AND `status` = '" . $arrParam['filter_state'] . "'";
+                $filterStatus 	= "AND `status` =  '".$arrParam['filter_status'] . "'";
+                $query[] 	    = $filterStatus ;
             } else {
-                $query[]	= "WHERE `status` = '" . $arrParam['filter_state'] . "'";
-                $flagWhere	= true;
+                $filterStatus 	= "WHERE `status` =  '".$arrParam['filter_status'] . "'";
+                $query[] 	    = $filterStatus ;
+                $flagWhere	    = true;
             }
         }
+
         // Filter: Gr ACP
         if( isset( $arrParam['filter_group_acp'] ) && $arrParam['filter_group_acp'] != 'default' ) {
             if( $flagWhere == true ){
@@ -83,7 +99,6 @@ class GroupModel extends Model{
         // Sort
         $paramsField 		= ( !empty( $_GET['field'] ) )      ? $_GET['field']   : 'id';
         $paramsType 		= ( !empty( $_GET['type'] ) )       ? $_GET['type']    : 'desc';
-
 
         if( !empty( $paramsField ) && !empty( $paramsType ) ) {
             $column     = $paramsField;
@@ -108,7 +123,7 @@ class GroupModel extends Model{
     }
 
     public function changeStatus( $arrParam, $option = null ): array {
-        if( $option['task'] == 'change-ajax-status' ) {
+        if ( $option['task'] == 'change-ajax-status' ) {
             $status         = ( $arrParam['status'] == 'inactive' ) ? 'active' : 'inactive';
             $modified_by    = $this->_userInfo['username'];
             $modified		= date('Y-m-d', time());
@@ -123,7 +138,7 @@ class GroupModel extends Model{
                 'link'      => URL::createLink( 'backend', 'group', 'ajaxStatus', [ 'id' => $id, 'status' => $status ] )
             ];
         }
-        if( $option['task'] == 'change-ajax-group-acp' ) {
+        if ( $option['task'] == 'change-ajax-group-acp' ) {
             $group_acp      = ( $arrParam['group_acp'] == 0 ) ? 1 : 0;
             $modified_by	= $this->_userInfo['username'];
             $modified		= date('Y-m-d', time());
@@ -137,7 +152,7 @@ class GroupModel extends Model{
                 'link'      => URL::createLink( 'backend', 'group', 'ajaxACP', [ 'id' => $id, 'group_acp' => $group_acp ] )
             ];
         }
-        if( $option['task'] == 'change-status' ) {
+        if ( $option['task'] == 'change-status' ) {
             $status         = $arrParam['type'];
             $modified_by	= $this->_userInfo['username'];
             $modified		= date('Y-m-d', time());
@@ -150,10 +165,19 @@ class GroupModel extends Model{
                 Session::set( 'message', [ 'class' => 'alert-danger', 'content' => 'Vui lòng chọn vào phần tử muốn thay đổi!' ] );
             }
         }
+        if ( $option['task'] == 'changeOrderingField' ) {
+            $value  = $arrParam['value'];
+            $id     = $arrParam['id'];
+            $modified_by    = $this->_userInfo['username'];
+            $modified		= date('Y-m-d', time());
+            $query	        = "UPDATE `$this->table` SET `ordering` = '$value', `modified` = '$modified', `modified_by` = '$modified_by'  WHERE `id` = '" . $id . "'";
+            $this->execute( $query );
+            return ['title' => 'Cập nhật thành công', 'class' => 'success'];
+        }
+
     }
 
     public function deleteItem( $arrParam, $option = null ) {
-
         if( $option == null ) {
             if( !empty( $arrParam['cid'] ) ) {
                 $ids    = $this->createWhereDeleteSQL( $arrParam['cid'] );
@@ -170,6 +194,12 @@ class GroupModel extends Model{
         }
     }
 
+    /*
+     * Info item
+     * @param $arrParam
+     * @param $option
+     * @return id
+     * */
     public function infoItem( $arrParam, $option = null ){
         if( $option == null ){
             $query[]	= "SELECT `id`, `name`, `group_acp`, `status`, `ordering`";
@@ -209,6 +239,13 @@ class GroupModel extends Model{
         }
     }
 
+
+    /*
+     * Ordering
+     * @param $arrParam
+     * @param $option
+     * @return id
+     * */
     public function ordering( $arrParam, $option = null ){
         if( $option == null ){
             if( !empty( $arrParam['order'] ) ){
@@ -225,19 +262,54 @@ class GroupModel extends Model{
         }
     }
 
-
-
-    //
-    public function changeAjax( $_arrParam, $options ): array {
-        if ( $options == 'changeOrderingField' ) {
-            $value  = $_arrParam['value'];
-            $id     = $_arrParam['id'];
-            $modified_by    = $this->_userInfo['username'];
-            $modified		= date('Y-m-d', time());
-            $query	        = "UPDATE `$this->table` SET `ordering` = '$value', `modified` = '$modified', `modified_by` = '$modified_by'  WHERE `id` = '" . $id . "'";
-            $this->execute( $query );
-            return ['title' => 'Cập nhật thành công', 'class' => 'success'];
-        }
+    /*
+     * Total Filter Items
+     * @return array
+     * */
+    public function totalFilterItem(): array {
+        $totalItemFilter                    = [];
+        $totalItemFilter['totalActive'] 	= $this->fetchRow("SELECT COUNT(`id`) AS `total` FROM `$this->table` WHERE `status` = 'active'")['total'];
+        $totalItemFilter['totalInactive'] 	= $this->fetchRow("SELECT COUNT(`id`) AS `total` FROM `$this->table` WHERE `status` = 'inactive'")['total'];
+        $totalItemFilter['totalAll']		= $this->fetchRow("SELECT COUNT(`id`) AS `total` FROM `$this->table`")['total'];
+        return $totalItemFilter;
     }
 
+    /*
+     * Change Bulk
+     * @param $arrParam
+     * @param $option
+     * @return Void
+     * */
+    public function changeBulk( $arrParam, $option = null ) {
+        if( !empty ( $_POST['action_choose'] ) && !empty( $_POST['cid'] ) ) {
+            $queryAction = '';
+            $where       = $this->createWhereDeleteSQL( $_POST['cid'] );
+            switch ( $_POST['action_choose'] ) {
+                case 'active':
+                    $queryAction    = "UPDATE `$this->table` SET `status` = 'active' WHERE `id` IN ($where)";
+                    $exc            = $this->execute( $queryAction );
+                    Session::set('alert', 'There are '.$exc->rowCount().' items that have changed status');
+                    break;
+                case 'inactive':
+                    $queryAction    = "UPDATE `$this->table` SET `status` = 'inactive' WHERE `id` IN ($where)";
+                    $exc            = $this->execute( $queryAction );
+                    Session::set('alert', 'There are '.$exc->rowCount().' items that have changed status');
+                    break;
+                case 'ordering':
+                    $i = 0;
+                    foreach ( $_POST['ordering'] as $key => $value ) {
+                        $queryAction = "UPDATE `$this->table` SET `ordering` = $value WHERE `id` = $key ";
+                        $this->execute( $queryAction );
+                        $i++;
+                    }
+                    Session::set('alert', 'There are '.$i.' items that have changed ordering');
+                    break;
+                case 'delete':
+                    $queryAction    = "DELETE FROM `$this->table` WHERE `id` IN ($where)";
+                    $exc            = $this->execute( $queryAction );
+                    Session::set('alert', 'There are delete '.$exc->rowCount().' items');
+                    break;
+            }
+        }
+    }
 }
