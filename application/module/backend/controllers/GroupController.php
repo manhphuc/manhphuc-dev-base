@@ -6,25 +6,14 @@
  * Time: 9:59 PM
  */
 
-class GroupController extends Controller {
-
-    /*
-     * Construct init
-     * */
-    public function __construct( $arrParams ){
-        parent::__construct( $arrParams );
-        $this->_templateObj->setFolderTemplate( 'admin/yivic-admin-theme/' );
-        $this->_templateObj->setFileTemplate( 'index-template.php' );
-        $this->_templateObj->setFileConfig( 'template.ini' );
-        $this->_templateObj->load();
-    }
+class GroupController extends AdminController {
 
     /*
      * Display group list items
      * */
     public function indexAction(){
         $this->_view->_title    = 'User Manager: User Groups';
-        $totalItems = $this->_model->countItem( $this->_arrParam, null );
+        $totalItems = $this->_model->countItems($this->_arrParam, ['task' => 'admin-count-items']);
 
         $configPagination = [
             'totalItemsPerPage'     => 4,
@@ -33,8 +22,7 @@ class GroupController extends Controller {
 
         $this->setPagination( $configPagination );
         $this->_view->pagination = new Pagination( $totalItems, $this->_pagination );
-        $this->_arrParam['filter_status']   = ( !empty( $_GET['filter_status'] ) ) ? $_GET['filter_status'] : 'all';
-        $this->_arrParam['filter_search']   = ( !empty( $_GET['search'] ) ) ? $_GET['search'] : '';
+        $this->_view->itemsStatusCount  = $this->_model->countItems( $this->_arrParam, ['task' => 'admin-count-items-group-by-status'] );
         $this->_view->Items     = $this->_model->listItem( $this->_arrParam, null );
         $this->_view->countItem = $this->_model->totalFilterItem();
 
@@ -45,97 +33,31 @@ class GroupController extends Controller {
     /*
      * Add group
      * */
-    /* comment */
-    public function formAction(){
-        $this->_view->_title = 'User Groups : Add';
-        if( isset( $this->_arrParam['id'] ) ){
-            $this->_view->_title = 'User Groups : Edit';
-            $this->_arrParam[ 'form' ] = $this->_model->infoItem( $this->_arrParam );
-            if( empty( $this->_arrParam['form'] ) ) URL::redirect( 'backend', 'group', 'index' );
-        }
+    public function formAction() {
 
-        if( isset( $this->_arrParam['form']['token'] ) > 0 ){
-            $validate = new Validate( $this->_arrParam['form'] );
-            $validate->addRule( 'name', 'string', [ 'min' => 3, 'max' => 255 ] )
-                ->addRule( 'ordering', 'int', [ 'min' => 1, 'max' => 100 ] )
-                ->addRule( 'status', 'status', [ 'deny' => [ 'default' ] ] )
-                ->addRule( 'group_acp', 'status', [ 'deny' => [ 'default' ] ] );
-            $validate->run();
-            $this->_arrParam['form'] = $validate->getResult();
-            if( $validate->isValid() == false ){
-                $this->_view->errors = $validate->showErrors();
+        if ( ($this->_arrParam['id'] ?? '' ) == Session::get( 'user')['info']['id'] ) URL::redirect( $this->_arrParam['module'], $this->_controllerName, 'index' );
+        $this->_view->_title = ucfirst($this->_controllerName) . ' Manager :: Add';
+        if ( isset( $this->_arrParam['id'] ) ) {
+            $this->_view->_title = ucfirst($this->_controllerName) . ' Manager :: Edit';
+            $this->_arrParam['form'] = $this->_model->getItem( $this->_arrParam );
+            if ( empty( $this->_arrParam['form'] ) ) URL::redirect( $this->_arrParam['module'], $this->_controllerName, 'index');
+        }
+        if ( isset( $this->_arrParam['form']['token'] ) ) {
+            $this->_validate->validate();
+
+            $this->_arrParam['form'] = $this->_validate->getResults();
+            if ( !$this->_validate->isValid() ) {
+                $this->_view->errors = $this->_validate->showErrors();
             } else {
-                $task	= ( isset( $this->_arrParam['form']['id'] ) ) ? 'edit' : 'add';
-                $id	= $this->_model->saveItem( $this->_arrParam, [ 'task' => $task ] );
-                if ( $this->_arrParam['type'] == 'save-close' ) URL::redirect( 'backend', 'group', 'index' );
-                if ( $this->_arrParam['type'] == 'save-new' ) URL::redirect( 'backend', 'group', 'form' );
-                if ( $this->_arrParam['type'] == 'save' ) URL::redirect( 'backend', 'group', 'form', [ 'id' => $id ] );
+                $task = isset( $this->_arrParam['form']['id'] ) ? 'edit' : 'add';
+                $id = $this->_model->saveItem( $this->_arrParam, ['task' => $task] );
+                if ( $this->_arrParam['type'] == 'save-close' )   URL::redirect( $this->_arrParam['module'], $this->_controllerName, 'index' );
+                if ( $this->_arrParam['type'] == 'save-new' )     URL::redirect( $this->_arrParam['module'], $this->_controllerName, 'form' );
+                if ( $this->_arrParam['type'] == 'save' )         URL::redirect( $this->_arrParam['module'], $this->_controllerName, 'form', ['id' => $id] );
             }
         }
-
-        $this->_view->arrParam = $this->_arrParam;
-        $this->_view->render( 'group/form' );
-    }
-
-    /*
-     * Action: Ajax status (*)
-     * */
-    public function ajaxStatusAction(){
-        $result = $this->_model->changeStatus( $this->_arrParam, [ 'task' => 'change-ajax-status' ] );
-        echo json_encode( $result );
-    }
-
-    /*
-     * Action: Ajax Group ACP (*)
-     * */
-    public function ajaxACPAction(){
-        $result = $this->_model->changeStatus( $this->_arrParam, [ 'task' => 'change-ajax-group-acp' ] );
-        echo json_encode( $result );
-    }
-
-    /*
-     * Action: Status (*)
-     * */
-    public function statusAction(){
-        $result = $this->_model->changeStatus( $this->_arrParam, [ 'task' => 'change-status' ] );
-        URL::redirect( 'backend', 'group', 'index' );
-    }
-
-    /*
-     * Action: Trash (*)
-     * */
-    /* comment */
-    public function trashAction(){
-        $this->_arrParam['id'] 		= $_GET['id'];
-        $result = $this->_model->deleteItem( $this->_arrParam );
-        URL::redirect( 'backend', 'group', 'index' );
-    }
-
-    /*
-     * ACTION: Ordering (*)
-     * */
-    public function orderingAction(){
-        $this->_model->ordering( $this->_arrParam );
-        URL::redirect( 'backend', 'group', 'index' );
-    }
-
-
-    /*
-     * ACTION: Change Ajax (*)
-     * */
-    public function changeAjaxAction(){
-        $this->_arrParam['value']   = $_GET['valueOrdering'];
-        $this->_arrParam['id']	    = $_GET['id'];
-        $result = $this->_model->changeStatus( $this->_arrParam, [ 'task' => 'changeOrderingField' ] );
-        echo json_encode($result);
-    }
-
-    /*
-     * ACTION: Bulk (*)
-     * */
-    public function bulkAction(){
-        $result = $this->_model->changeBulk( $this->_arrParam, null );
-        URL::redirect( 'backend', 'group', 'index' );
+        $this->_view->params = $this->_arrParam;
+        $this->_view->render("{$this->_controllerName}/form");
     }
 
 }

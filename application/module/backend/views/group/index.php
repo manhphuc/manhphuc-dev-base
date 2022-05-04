@@ -1,12 +1,15 @@
 <?php
+use Yivic\ManhPhucDevBase\Application\Module\Backend\Views\BEViewConfigs\BEViewConfigs;
+require_once MODULE_PATH . 'backend/views/config.php';
+$userInfo = Session::get('user')['info'];
+
 $controller     = @$this->arrParam['controller'];
 $module         = @$this->arrParam['module'];
 $action         = @$this->arrParam['action'];
 $paramsStatus   = !empty( @$this->arrParam['filter_status'] ) ? @$this->arrParam['filter_status'] : 'all';
 $columnPost     = ( !empty( $_GET['field'] ) ) ? $_GET['field']   : 'id';
 $orderPost 		= ( !empty( $_GET['type'] ) ) ? $_GET['type']    : 'desc';
-$paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend', $controller, 'index' ) );
-?>
+$paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend', $controller, 'index' ) ); ?>
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <?php require_once ''.TEMPLATE_PATH . 'admin/yivic-admin-theme/html/page-header.php'; ?>
@@ -34,41 +37,14 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                     <div class="container-fluid">
                                         <div class="row justify-content-between align-items-center">
                                             <div class="area-filter-status mb-2">
-                                                <?php $linkInactive	= URL::createLink( $module, $controller, $action, ['filter_status' => 'inactive'] ); ?>
-                                                <?php $linkActive	= URL::createLink( $module, $controller, $action, ['filter_status' => 'active'] ); ?>
-                                                <?php $linkAll		= URL::createLink( $module, $controller, $action, ['filter_status' => 'all'] ); ?>
-                                                <?php $arrFilterStatus= [
-                                                    'all' => [
-                                                        'name'  => 'All',
-                                                        'class' => 'btn-default',
-                                                        'link'  => $linkAll,
-                                                        'total' => $this->countItem['totalAll']
-                                                    ],
-                                                    'active'  => [
-                                                        'name'  => 'Active',
-                                                        'class' => 'btn-default',
-                                                        'link'  => $linkActive,
-                                                        'total' => $this->countItem['totalActive']
-                                                    ],
-                                                    'inactive' => [
-                                                        'name'  => 'InActive',
-                                                        'class' => 'btn-default',
-                                                        'link'  => $linkInactive,
-                                                        'total' => $this->countItem['totalInactive']
-                                                    ]
-                                                ]; ?>
-                                                <?php $arrFilterStatus[$paramsStatus]['class'] = 'btn-success'; ?>
-                                                <?php echo Helper::showFilterStatus( $arrFilterStatus ); ?>
+                                                <?php $currentFilterStatus    = $this->arrParam['filter_status'] ?? 'all'; ?>
+                                                <?php echo $xhtmlButtonFilter = HTML::showButtonFilter( $this->arrParam['module'], $this->arrParam['controller'], $this->itemsStatusCount, $currentFilterStatus, BEViewConfigs::search_field(), BEViewConfigs::search_value() ); ?>
                                             </div>
                                             <div class="area-search mb-2">
                                                 <form action="" method="GET">
                                                     <div class="input-group">
-                                                        <?php $paramsSearch = !empty( $this->arrParam['search'] ) ? $this->arrParam['search'] : ''; ?>
-                                                        <input type="text" class="form-control" name="search" placeholder="Search for" aria-label="search" value="<?php echo $paramsSearch; ?>">
-                                                        <span class="input-group-append">
-                                                            <button type="button" name="clear" class="btn btn-default">Clear</button>
-                                                            <button type="button" name="search" class="btn btn-success">Search</button>
-                                                        </span>
+                                                        <?php $xhtmlSearchArea  = HTML::showAreaSearch( $this->arrParam['controller'], BEViewConfigs::search_field(), BEViewConfigs::search_value() ); ?>
+                                                        <?php echo $xhtmlSearchArea; ?>
                                                     </div>
                                                 </form>
                                             </div>
@@ -90,23 +66,26 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                         ];
                                         $selectGrACP        = Helper::cmsSelectBox( 'filter_group_acp', 'form-select', $arrSelectGrACP, $this->arrParam['filter_group_acp'] ?? '' );
                                         ?>
-                                        <div class="row justify-content-start align-items-end yivic-selectBox-row">
-                                            <div class="form-group">
-                                                <select class="form-control">
-                                                    <option value="default">Select status</option>
-                                                    <option value="0">Publish</option>
-                                                    <option value="1">Unpublish</option>
-                                                </select>
-                                            </div>
+<!--                                        <div class="row justify-content-start align-items-end yivic-selectBox-row">-->
+<!---->
+<!--                                            <div class="form-group input-group-sm">-->
+<!--                                                <select class="form-control">-->
+<!--                                                    <option value="default">Select status</option>-->
+<!--                                                    <option value="0">Publish</option>-->
+<!--                                                    <option value="1">Unpublish</option>-->
+<!--                                                </select>-->
+<!--                                            </div>-->
+<!---->
+<!--                                            <div class="form-group input-group-sm">-->
+<!--                                                <select class="form-control" disabled>-->
+<!--                                                    <option value="default">Select Group ACP</option>-->
+<!--                                                    <option value="1">Yes</option>-->
+<!--                                                    <option value="0">No</option>-->
+<!--                                                </select>-->
+<!--                                            </div>-->
+<!---->
+<!--                                        </div>-->
 
-                                            <div class="form-group">
-                                                <select class="form-control" disabled>
-                                                    <option value="default">Select Group ACP</option>
-                                                    <option value="1">Yes</option>
-                                                    <option value="0">No</option>
-                                                </select>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                                 <!-- /.card-body -->
@@ -117,7 +96,7 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                 <div class="card-header">
                                     <h3 class="card-title">List</h3>
                                     <div class="card-tools">
-                                        <a href="#" class="btn btn-tool" data-card-widget="refresh" onclick="javascript:refreshAll()">
+                                        <a href="<?= BEViewConfigs::reload_link() ?>" class="btn btn-tool" data-card-widget="refresh"">
                                             <i class="fas fa-sync-alt"></i>
                                         </a>
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -129,7 +108,7 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                     <div class="container-fluid">
                                         <div class="row align-items-center justify-content-between mb-2">
                                             <div>
-                                                <div class="input-group">
+                                                <div class="input-group input-group-sm">
 
                                                     <select class="form-control custom-select" name="action_choose">
                                                         <option value="default">Bulk Action</option>
@@ -146,7 +125,7 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                                 </div>
                                             </div>
                                             <div>
-                                                <a href="group-form.php" class="btn btn-info"><i class="fas fa-plus"></i> Add New</a>
+                                                <a href="<?php echo BEViewConfigs::add_new_link(); ?>" class="btn btn-sm btn-info"><i class="fas fa-plus"></i> Add New</a>
                                             </div>
                                         </div>
                                     </div>
@@ -171,18 +150,16 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                                     <?php $str_output = '';
                                                     if ( !empty( $this->Items ) ) {
                                                         foreach ( $this->Items as $key => $value ) {
-                                                            $id             = $value['id'];
+                                                            $id             = Helper::highlight( $value['id'], BEViewConfigs::search_field(), BEViewConfigs::search_value(), 'id' );
+                                                            $title          = Helper::highlight( $value['name'], BEViewConfigs::search_field(), BEViewConfigs::search_value(), 'name' );
                                                             $status         = Helper::cmsStatus( $value['status'], URL::createLink( 'backend', 'group', 'ajaxStatus', [ 'id' => $id, 'status' =>  $value['status'] ] ), $id );
                                                             $gr_acp         = Helper::cmsGroupACP( $value['group_acp'], URL::createLink( 'backend', 'group', 'ajaxACP', [ 'id' => $id, 'group_acp' => $value['group_acp'] ] ), $id );
                                                             $ordering       = '<input id="'.$id.'" type="text" name="order['.$id.']" size="5" value="'.$value['ordering'].'" class="orderingField text-center form-control form-control-alt form-control-sm">';
-                                                            $created        = Helper::formatDate( 'd-m-Y', $value['created'] );
-                                                            $createdBy      = $value['created_by'];
-                                                            $modified       = Helper::formatDate( 'd-m-Y', $value['modified'] );
-                                                            $modifiedBy     = $value['modified_by'];
-                                                            $linkEdit       = URL::createLink( 'backend', $controller, 'form', [ 'id' => $id ] );
-
-                                                            $linkDelete     = URL::createLink( $this->arrParam['module'], $this->arrParam['controller'], 'trash', ['id' => $id] );
-                                                            $buttonAction   = Helper::createButtonAction( array( 'delete' => "javascript:trashSingle('$linkDelete')" ) );
+                                                            $created_by     = json_decode( $value['created_by'] );
+                                                            $createdBy      = HTML::showItemHistory( $created_by->username ?? '', $value['created'] );
+                                                            $modified_by    = json_decode( $value['modified_by'] );
+                                                            $modifiedBy     = HTML::showItemHistory( $modified_by->username ?? '', $value['modified'] );
+                                                            $actionButton   = HTML::showActionButton( BEViewConfigs::module_name(), BEViewConfigs::controller_mame() , $value['id'] );
 
                                                             $str_output .= '<tr>';
                                                             $str_output .= '    <!-- Checkbox -->';
@@ -193,7 +170,7 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
 
                                                             $str_output .= '    <!-- Title -->';
                                                             $str_output .= '    <td class="text-left td-content">';
-                                                            $str_output .= '        <a class="" href="">'.$value['name'].'</a>';
+                                                            $str_output .= '        <a class="" href="">'.$title.'</a>';
                                                             $str_output .= '    </td> <!-- End Title -->';
 
                                                             $str_output .= '    <!-- ACP Group -->';
@@ -203,28 +180,18 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                                                             $str_output .= '    <td>'.$status.'</td> <!-- End Status -->';
 
                                                             $str_output .= '    <!-- Ordering -->';
-                                                            $str_output .= '    <td>';
+                                                            $str_output .= '    <td class="position-relative">';
                                                             $str_output .= '        '.$ordering.'';
                                                             $str_output .= '    </td> <!-- End Ordering -->';
 
                                                             $str_output .= '    <!-- Created -->';
-                                                            $str_output .= '    <td>';
-                                                            $str_output .= '        <p class="mb-0"><i class="far fa-user"></i> '.$createdBy.'</p>';
-                                                            $str_output .= '        <p class="mb-0"><i class="far fa-clock"></i> '.$created.'</p>';
-                                                            $str_output .= '    </td> <!-- End Created -->';
+                                                            $str_output .= '    <td>'.$createdBy.'</td><!-- End Created -->';
 
                                                             $str_output .= '     <!-- Modified -->';
-                                                            $str_output .= '    <td>';
-                                                            $str_output .= '        <p class="mb-0"><i class="far fa-user"></i> '.$modifiedBy.'</p>';
-                                                            $str_output .= '        <p class="mb-0"><i class="far fa-clock"></i> '.$modified.'</p>';
-                                                            $str_output .= '    </td> <!-- End Modified -->';
+                                                            $str_output .= '    <td>'.$modifiedBy.'</td> <!-- End Modified -->';
 
                                                             $str_output .= '    <!-- Action -->';
-                                                            $str_output .= '    <td>';
-                                                            $str_output .= '        <a href="'.$linkEdit.'" class="btn btn-info btn-sm rounded-circle yivic-btnSM"><i class="fas fa-pen"></i></a>';
-                                                            $str_output .= '        '.$buttonAction.'';
-                                                            $str_output .= '    </td> <!-- End Action -->';
-
+                                                            $str_output .= '    <td>'.$actionButton.'</td> <!-- End Action -->';
                                                             $str_output .= '</tr>';
                                                         }
                                                         echo $str_output;

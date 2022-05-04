@@ -3,6 +3,7 @@ class GroupModel extends Model{
 
     private $_columns = [ 'id', 'name', 'group_acp', 'created', 'created_by', 'modified', 'modified_by', 'status', 'ordering', 'privilege_id', 'picture' ];
     private $_userInfo;
+    protected $fieldSearchAccepted = ['id', 'name'];
 
     public function __construct() {
         parent::__construct();
@@ -13,76 +14,91 @@ class GroupModel extends Model{
 
     }
 
-    public function countItem( $arrParam, $option = null ) {
-        $query[]    = "SELECT COUNT( `id` ) AS `total` ";
-        $query[]    = "FROM `$this->table`";
-
-        // Filter: keyword
-        $flagWhere      = false;
-        if( !empty( $arrParam['filter_search'] ) && $arrParam['filter_search'] != '' ) {
-            if( $flagWhere == true ){
-                $keyword    = '"%' . $arrParam['filter_search'] . '%"';
-                $query[]    = "AND  `name` LIKE $keyword";
-            } else {
-                $keyword    = '"%' . $arrParam['filter_search'] . '%"';
-                $query[]    = "WHERE  `name` LIKE $keyword";
-                $flagWhere  = true;
+    public function countItems( $params = [], $options = [] ) {
+        //$currentUserID = $this->_userInfo['id'];
+        $result = null;
+        if ( $options['task'] == 'admin-count-items-group-by-status' ) {
+            $query[] = "SELECT `status`, COUNT(`id`) AS `count` FROM `$this->table` WHERE `id` <> 0";
+            if ( isset( $params['filter_group'] ) && $params['filter_group'] != 'default' ) $query[] = "AND `group_id` = '{$params['filter_group']}'";
+            if ( isset( $params['search_value'] ) && $params['search_value'] != '' ) {
+                $query[] = "AND";
+                if ( $params['search_field'] == 'all' ) {
+                    $query[] = "(";
+                    foreach ( $this->fieldSearchAccepted as $field ) {
+                        $query[] = "`$field` LIKE '%{$params['search_value']}%'";
+                        $query[] = "OR";
+                    }
+                    array_pop( $query );
+                    $query[] = ")";
+                } elseif ( in_array( $params['search_field'], $this->fieldSearchAccepted ) ) {
+                    $query[] = "`{$params['search_field']}` LIKE '%{$params['search_value']}%'";
+                }
             }
+            $query[] .= " GROUP BY `status`";
+            $query = implode(' ', $query);
+            $result = $this->fetchAll($query);
         }
 
-        // Filter: Status
-        if( isset( $arrParam['filter_status'] ) && $arrParam['filter_status'] != 'all' ) {
-            if( $flagWhere == true ){
-                $filterStatus 	= "AND `status` =  '".$arrParam['filter_status'] . "'";
-                $query[] 	    = $filterStatus ;
-            } else {
-                $filterStatus 	= "WHERE `status` =  '".$arrParam['filter_status'] . "'";
-                $query[] 	    = $filterStatus ;
-                $flagWhere	    = true;
+        if ( $options['task'] == 'admin-count-items' ) {
+            $query[] = "SELECT COUNT(`id`) AS `count` FROM `$this->table` WHERE `id` > 0";
+
+            if ( isset( $params['filter_status'] ) && $params['filter_status'] != 'all' ) $query[] = "AND `status` = '{$params['filter_status']}'";
+
+            if ( isset( $params['filter_group'] ) && $params['filter_group'] != 'default' ) $query[] = "AND `group_id` = '{$params['filter_group']}'";
+
+            if ( isset( $params['search_value'] ) && $params['search_value'] != '' ) {
+                $query[] = "AND";
+                if ( $params['search_field'] == 'all' ) {
+                    $query[] = "(";
+                    foreach ( $this->fieldSearchAccepted as $field ) {
+                        $query[] = "`$field` LIKE '%{$params['search_value']}%'";
+                        $query[] = "OR";
+                    }
+                    array_pop($query);
+                    $query[] = ")";
+                } elseif ( in_array( $params['search_field'], $this->fieldSearchAccepted ) ) {
+                    $query[] = "`{$params['search_field']}` LIKE '%{$params['search_value']}%'";
+                }
             }
+            $query = implode(' ', $query);
+            $result = $this->fetchRow($query)['count'];
         }
 
-        // Filter: Gr ACP
-        if( isset( $arrParam['filter_group_acp'] ) && $arrParam['filter_group_acp'] != 'default' ) {
-            if( $flagWhere == true ){
-                $query[]	= "AND `group_acp` = '" . $arrParam['filter_group_acp']. "'";
-            } else {
-                $query[]	= "WHERE `group_acp` = '" . $arrParam['filter_group_acp'] . "'";
-                $flagWhere	= true;
-            }
-        }
-
-        $query      = implode( " ",$query );
-        $result     = $this->fetchRow( $query );
-        return $result['total'];
+        return $result;
     }
 
     public function listItem( $arrParam, $option = null ): array {
+        $currentUserID = $this->_userInfo['id'];
         $query[]    = "SELECT `id`, `name`, `group_acp`, `status`, `ordering`, `created`, `created_by`, `modified`, `modified_by` ";
         $query[]    = "FROM `$this->table`";
-
+        $query[] = "WHERE `id` <> 0";
         // Filter: keyword
         $flagWhere      = false;
-        if( !empty( $arrParam['filter_search'] ) && $arrParam['filter_search'] != '' ) {
-            if( $flagWhere == true ){
-                $keyword    = '"%' . $arrParam['filter_search'] . '%"';
-                $query[]    = "AND  `name` LIKE $keyword";
-            } else {
-                $keyword    = '"%' . $arrParam['filter_search'] . '%"';
-                $query[]    = "WHERE  `name` LIKE $keyword";
-                $flagWhere  = true;
+        if ( isset( $arrParam['search_value'] ) && $arrParam['search_value'] != '' ) {
+            $query[] = "AND";
+            if ( $arrParam['search_field'] == 'all' ) {
+                $query[] = "(";
+                foreach ( $this->fieldSearchAccepted as $field ) {
+                    $query[] = "`$field` LIKE '%{$arrParam['search_value']}%'";
+                    $query[] = "OR";
+                }
+                array_pop($query);
+                $query[] = ")";
+            } elseif ( in_array( $arrParam['search_field'], $this->fieldSearchAccepted ) ) {
+                $query[] = "`{$arrParam['search_field']}` LIKE '%{$arrParam['search_value']}%'";
             }
         }
 
         // Filter: Status
         if( isset( $arrParam['filter_status'] ) && $arrParam['filter_status'] != 'all' ) {
-            if( $flagWhere == true ){
+
+            if( $flagWhere == false ){
                 $filterStatus 	= "AND `status` =  '".$arrParam['filter_status'] . "'";
                 $query[] 	    = $filterStatus ;
+                $flagWhere	    = true;
             } else {
                 $filterStatus 	= "WHERE `status` =  '".$arrParam['filter_status'] . "'";
                 $query[] 	    = $filterStatus ;
-                $flagWhere	    = true;
             }
         }
 
@@ -119,6 +135,7 @@ class GroupModel extends Model{
         }
 
         $query      = implode( " ", $query );
+
         return $this->fetchAll( $query );
     }
 
@@ -135,7 +152,9 @@ class GroupModel extends Model{
             return [
                 'id'        => $id,
                 'status'    => $status,
-                'link'      => URL::createLink( 'backend', 'group', 'ajaxStatus', [ 'id' => $id, 'status' => $status ] )
+                'link'      => URL::createLink( 'backend', 'group', 'ajaxStatus', [ 'id' => $id, 'status' => $status ] ),
+                'title'     => 'Cập nhật thành công',
+                'class'     => 'success'
             ];
         }
         if ( $option['task'] == 'change-ajax-group-acp' ) {
@@ -149,7 +168,9 @@ class GroupModel extends Model{
             return [
                 'id'        => $id,
                 'group_acp' => $group_acp,
-                'link'      => URL::createLink( 'backend', 'group', 'ajaxACP', [ 'id' => $id, 'group_acp' => $group_acp ] )
+                'link'      => URL::createLink( 'backend', 'group', 'ajaxACP', [ 'id' => $id, 'group_acp' => $group_acp ] ),
+                'title'     => 'Cập nhật thành công',
+                'class'     => 'success'
             ];
         }
         if ( $option['task'] == 'change-status' ) {
@@ -194,6 +215,25 @@ class GroupModel extends Model{
         }
     }
 
+    public function itemInSelectBox( $arrParam, $options = null ): array {
+        $query      = "SELECT `id`, `name` FROM `$this->table`";
+        $result     = $this->fetchAll( $query );
+        if ( $options == 'add-default' ) {
+            $result['default'] = "- Select Group -";
+            ksort( $result );
+        }
+        return $result;
+    }
+
+    public function getItem($params, $options = []) {
+        $query[] = "SELECT `id`, `name`, `group_acp`, `status`, `ordering`";
+        $query[] = "FROM `$this->table`";
+        $query[] = "WHERE `id` = {$params['id']}";
+
+        $query = implode( ' ', $query );
+        return $this->fetchRow( $query );
+    }
+
     /*
      * Info item
      * @param $arrParam
@@ -216,25 +256,34 @@ class GroupModel extends Model{
      * @param $option
      * @return id
      * */
-    public function saveItem( $arrParam, $option = null ) {
-
-        if( $option['task'] == 'add' ){
-            $arrParam['form']['created']	    = date( 'Y-m-d', time() );
-            $arrParam['form']['created_by']	    = $this->_userInfo['username'];
+    public function saveItem( $arrParam, $options = [] ) {
+        if ( $options['task'] == 'add' ) {
+            $arrParam['form']['created'] = date( DB_DATETIME_FORMAT );
+            $arrParam['form']['created_by'] = $this->getHistoryBy();
             $arrParam['form']['privilege_id']	= 1;
             $arrParam['form']['picture']	    = 'img1.png';
-            $data	= array_intersect_key( $arrParam['form'], array_flip( $this->_columns ) );
-
-            $this->insert( $data );
-            Session::set( 'message', [ 'class' => 'alert-success', 'content' => 'Dữ liệu được lưu thành công!' ] );
-            return $this->lastID();
+            $data = array_intersect_key($arrParam['form'], array_flip( $this->_columns ) );
+            $result = $this->insert( $data );
+            if ( $result ) {
+                Session::set('notify', Helper::createNotify( 'success', SUCCESS_ADD ) );
+            } else {
+                Session::set('notify', Helper::createNotify( 'warning', FAIL_ACTION ) );
+            }
+            return $result;
         }
-        if( $option['task'] == 'edit' ){
-            $arrParam['form']['modified']	= date( 'Y-m-d', time() );
-            $arrParam['form']['modified_by']= $this->_userInfo['username'];
-            $data	= array_intersect_key( $arrParam['form'], array_flip( $this->_columns ) );
-            $this->update( $data, [ [ 'id', $arrParam['form']['id'] ] ] );
-            Session::set( 'message', [ 'class' => 'alert-success', 'content' => 'Dữ liệu được lưu thành công!' ] );
+
+        if ( $options['task'] == 'edit' ) {
+            $arrParam['form']['modified'] = date( DB_DATETIME_FORMAT );
+            $arrParam['form']['modified_by'] = $this->getHistoryBy();
+            $arrParam['form']['privilege_id']	= 1;
+            $arrParam['form']['picture']	    = 'img1.png';
+            $data = array_intersect_key( $arrParam['form'], array_flip( $this->_columns ) );
+            $result = $this->update( $data, [ ['id', $arrParam['form']['id']] ] );
+            if ( $result ) {
+                Session::set( 'notify', Helper::createNotify( 'success', SUCCESS_EDIT ) );
+            } else {
+                Session::set( 'notify', Helper::createNotify( 'warning', FAIL_ACTION ) );
+            }
             return $arrParam['form']['id'];
         }
     }
