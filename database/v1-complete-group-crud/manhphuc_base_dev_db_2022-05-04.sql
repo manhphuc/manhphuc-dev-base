@@ -42,7 +42,7 @@ CREATE TABLE `book` (
   `ordering` int DEFAULT '10',
   `category_id` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 
@@ -62,7 +62,7 @@ CREATE TABLE `cart` (
   `status` tinyint(1) DEFAULT NULL,
   `date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 
@@ -82,7 +82,7 @@ CREATE TABLE `category` (
   `status` tinyint(1) DEFAULT '0',
   `ordering` int DEFAULT '10',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 
@@ -104,7 +104,7 @@ CREATE TABLE `group` (
   `privilege_id` text NOT NULL,
   `picture` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `group` WRITE;
 /*!40000 ALTER TABLE `group` DISABLE KEYS */;
@@ -132,7 +132,7 @@ CREATE TABLE `privilege` (
   `controller` varchar(45) NOT NULL,
   `action` varchar(45) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `privilege` WRITE;
 /*!40000 ALTER TABLE `privilege` DISABLE KEYS */;
@@ -186,17 +186,19 @@ CREATE TABLE `user` (
   `email` varchar(255) NOT NULL,
   `fullname` varchar(255) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
+  `phone` varchar(45) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
   `created` datetime DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(45) DEFAULT NULL,
   `modified` datetime DEFAULT '0000-00-00 00:00:00',
   `modified_by` varchar(45) DEFAULT NULL,
   `register_date` datetime DEFAULT '0000-00-00 00:00:00',
   `register_ip` varchar(25) DEFAULT NULL,
-  `status` tinyint(1) DEFAULT '0',
-  `ordering` int DEFAULT '10',
-  `group_id` int NOT NULL,
+  `status` varchar(45) DEFAULT 'inactive',
+  `ordering` int(11) DEFAULT 1,
+  `group_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;

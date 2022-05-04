@@ -19,13 +19,12 @@ class GroupController extends AdminController {
             'totalItemsPerPage'     => 4,
             'pageRange'             => 2,
         ];
-
         $this->setPagination( $configPagination );
-        $this->_view->pagination = new Pagination( $totalItems, $this->_pagination );
-        $this->_view->itemsStatusCount  = $this->_model->countItems( $this->_arrParam, ['task' => 'admin-count-items-group-by-status'] );
-        $this->_view->Items     = $this->_model->listItem( $this->_arrParam, null );
-        $this->_view->countItem = $this->_model->totalFilterItem();
+        $this->_view->pagination        = new Pagination( $totalItems, $this->_pagination );
 
+        $this->_view->itemsStatusCount  = $this->_model->countItems( $this->_arrParam, ['task' => 'admin-count-items-group-by-status'] );
+        $this->_view->Items             = $this->_model->listItem( $this->_arrParam, null );
+        $this->_view->countItem         = $this->_model->totalFilterItem();
         $this->_view->render( 'group/index' );
 
     }
