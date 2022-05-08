@@ -24,72 +24,7 @@ $paginationHTML = $this->pagination->showPagination( URL::createLink( 'backend',
                     <form class="content" action="<?php echo $bulkAction; ?>" method="post" name="adminForm" id="adminForm">
                         <div class="yivic-allBlockForm" >
                             <!-- Search & Filter -->
-                            <div class="card card-default yivicCard">
-                                <div class="card-header">
-                                    <h3 class="card-title">Search & Filter</h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="container-fluid">
-                                        <div class="row justify-content-between align-items-center">
-                                            <div class="area-filter-status mb-2">
-                                                <?php $currentFilterStatus    = $this->arrParam['filter_status'] ?? 'all'; ?>
-                                                <?php echo $xhtmlButtonFilter = HTML::showButtonFilter( $this->arrParam['module'], $this->arrParam['controller'], $this->itemsStatusCount, $currentFilterStatus, BEViewConfigs::search_field(), BEViewConfigs::search_value() ); ?>
-                                            </div>
-                                            <div class="area-search mb-2">
-                                                <form action="" method="GET">
-                                                    <div class="input-group">
-                                                        <?php $xhtmlSearchArea  = HTML::showAreaSearch( $this->arrParam['controller'], BEViewConfigs::search_field(), BEViewConfigs::search_value() ); ?>
-                                                        <?php echo $xhtmlSearchArea; ?>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <?php
-                                        // Select box status
-                                        $arrSelectBoxStt = [
-                                            'default'   => 'Select status',
-                                            'inactive'  => 'Unpublish',
-                                            'active'    => 'Publish'
-                                        ];
-                                        $selectBoxStt       = Helper::cmsSelectBox( 'filter_state', 'form-select', $arrSelectBoxStt, $this->arrParam['filter_state'] ?? '' );
-
-                                        // Select box Group ACP
-                                        $arrSelectGrACP     = [
-                                            'default'   => 'Select Group ACP',
-                                            1           => 'Yes',
-                                            0           => 'No'
-                                        ];
-                                        $selectGrACP        = Helper::cmsSelectBox( 'filter_group_acp', 'form-select', $arrSelectGrACP, $this->arrParam['filter_group_acp'] ?? '' );
-                                        ?>
-<!--                                        <div class="row justify-content-start align-items-end yivic-selectBox-row">-->
-<!---->
-<!--                                            <div class="form-group input-group-sm">-->
-<!--                                                <select class="form-control">-->
-<!--                                                    <option value="default">Select status</option>-->
-<!--                                                    <option value="0">Publish</option>-->
-<!--                                                    <option value="1">Unpublish</option>-->
-<!--                                                </select>-->
-<!--                                            </div>-->
-<!---->
-<!--                                            <div class="form-group input-group-sm">-->
-<!--                                                <select class="form-control" disabled>-->
-<!--                                                    <option value="default">Select Group ACP</option>-->
-<!--                                                    <option value="1">Yes</option>-->
-<!--                                                    <option value="0">No</option>-->
-<!--                                                </select>-->
-<!--                                            </div>-->
-<!---->
-<!--                                        </div>-->
-
-                                    </div>
-                                </div>
-                                <!-- /.card-body -->
-                            </div>
+                            <?php require_once MODULE_PATH . 'backend/views/search-filter.php'; ?>
 
                             <!-- List -->
                             <div class="card card-default yivicCard">

@@ -5,21 +5,7 @@ $statusValues = ['inactive' => TEMPLATE_STATUS['inactive']['name'], 'active' => 
 $groupACPValues = ['0' => 'No', '1' => 'Yes'];
 $inputToken = Form::hidden( "form[token]", time() );
 
-// Save
-$linkSave = URL::createLink( $this->arrParam['module'], $this->arrParam['controller'], 'form', ['type' => 'save'] );
-$btnSave = HTML::createActionButton( "javascript:submitForm('$linkSave')", 'btn-success mr-1', 'Save' );
-
-// Save & Close
-$linkSaveClose = URL::createLink( $this->arrParam['module'], $this->arrParam['controller'], 'form', ['type' => 'save-close'] );
-$btnSaveClose = HTML::createActionButton( "javascript:submitForm('$linkSaveClose')", 'btn-success mr-1', 'Save & Close' );
-
-// Save & New
-$linkSaveNew = URL::createLink( $this->arrParam['module'], $this->arrParam['controller'], 'form', ['type' => 'save-new'] );
-$btnSaveNew = HTML::createActionButton( "javascript:submitForm('$linkSaveNew')", 'btn-success mr-1', 'Save & New' );
-
-// Cancel
-$linkCancel = URL::createLink( $this->arrParam['module'], $this->arrParam['controller'], 'index' );
-$btnCancel = HTML::createActionButton( $linkCancel, 'btn-danger mr-1', 'Cancel' );
+require_once MODULE_PATH . 'backend/views/define-form-button.php';
 
 // List element
 $elements = [
@@ -65,7 +51,7 @@ if ( isset( $this->params['id'] ) ) {
                             </form>
                         </div>
                         <div class="card-footer" style="padding-left: 0; padding-right: 0; background: #f4f6f9">
-                            <?= $btnSave . $btnSaveClose . $btnSaveNew . $btnCancel ?>
+                            <?= BTN_SAVE . BTN_SAVE_CLOSE . BTN_SAVE_NEW . BTN_CANCEL ?>
                         </div>
                     </div>
                 </div>
